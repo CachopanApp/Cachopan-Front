@@ -1,0 +1,30 @@
+name: cachopan_app
+description: "A sales management app for Cachopan SL."
+
+# Prevent accidental publishing to pub.dev.
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.5.4
+
+dependencies:
+  flutter:
+    sdk: flutter
+  http: ^1.2.2
+  flutter_secure_storage: ^8.0.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    # Add assets from the images directory to the application.
+    - assets/images/Cachopan_logo.webp
+    - assets/images/ocean.webp
