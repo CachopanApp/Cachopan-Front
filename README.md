@@ -1,6 +1,3 @@
-Based on the gathered information, here is a draft for the README file:
-
----
 
 # Cachopan-Front
 
