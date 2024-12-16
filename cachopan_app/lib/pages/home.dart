@@ -4,7 +4,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../widgets/custom_text_form_field.dart';
 import '../widgets/custom_button.dart';
-import '../api.dart';
+import '../api.dart'; // Import the UserApi class
 import '../widgets/error_modal.dart'; // Import the UserApi class
 
 class HomeScreen extends StatefulWidget {
@@ -42,6 +42,7 @@ class _HomeScreenState extends State<HomeScreen> {
         await storage.write(key: 'access_token', value: accessToken);
         await storage.write(key: 'refresh_token', value: refreshToken);
         await storage.write(key: 'user_id', value: user_id.toString());
+        await storage.write(key: 'username', value: _nombreController.text);
 
         Navigator.of(context).pushReplacementNamed('/clients');
 

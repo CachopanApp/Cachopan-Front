@@ -4,41 +4,61 @@ import 'dart:convert';
 class Api {
   static const String baseUrl = 'http://localhost:5000';
 
-  static Future<http.Response> get(String endpoint) async {
+  static Future<http.Response> get(String endpoint, [String? accessToken]) async {
     final url = Uri.parse('$baseUrl/$endpoint');
-    return await http.get(url);
+    final Map<String, String> headers = accessToken != null ? {'Authorization': 'Bearer $accessToken'} : {};
+    return await http.get(url, headers: headers);
   }
 
-  static Future<http.Response> post(String endpoint, Map<String, dynamic> body) async {
+  static Future<http.Response> post(String endpoint, Map<String, dynamic> body, [String? accessToken]) async {
     final url = Uri.parse('$baseUrl/$endpoint');
-    return await http.post(url, headers: {'Content-Type': 'application/json'}, body: jsonEncode(body));
+    final Map<String, String> headers = {
+      'Content-Type': 'application/json',
+      if (accessToken != null) 'Authorization': 'Bearer $accessToken',
+    };
+    return await http.post(url, headers: headers, body: jsonEncode(body));
   }
 
-  static Future<http.Response> put(String endpoint, Map<String, dynamic> body) async {
+  static Future<http.Response> put(String endpoint, Map<String, dynamic> body, [String? accessToken]) async {
     final url = Uri.parse('$baseUrl/$endpoint');
-    return await http.put(url, headers: {'Content-Type': 'application/json'}, body: jsonEncode(body));
+    final Map<String, String> headers = {
+      'Content-Type': 'application/json',
+      if (accessToken != null) 'Authorization': 'Bearer $accessToken',
+    };
+    return await http.put(url, headers: headers, body: jsonEncode(body));
   }
 
-  static Future<http.Response> delete(String endpoint) async {
+  static Future<http.Response> delete(String endpoint, [String? accessToken]) async {
     final url = Uri.parse('$baseUrl/$endpoint');
-    return await http.delete(url);
+    final Map<String, String> headers = accessToken != null ? {'Authorization': 'Bearer $accessToken'} : {};
+    return await http.delete(url, headers: headers);
   }
 }
 
 class UserApi {
-
   static Future<http.Response> getUser(String name, String password) async {
-
-    final Map<String,dynamic> body = {
-      'name': name,
-      'password': password,
-    };
-
-    return await Api.post('user/login', body);
+    return await Api.post('user/login', {'name': name, 'password': password});
   }
-
 }
 
 class ClientApi {
+  static Future<http.Response> getAllClients(int userId, String accessToken) async {
+    return await Api.get('client/getAll/$userId', accessToken);
+  }
 
+  static Future<http.Response> createClient(Map<String, dynamic> clientData, String accessToken) async {
+    return await Api.post('client/create', clientData, accessToken);
+  }
+
+  static Future<http.Response> getClientById(int clientId, String accessToken) async {
+    return await Api.get('client/get/$clientId', accessToken);
+  }
+
+  static Future<http.Response> updateClient(int clientId, Map<String, dynamic> clientData, String accessToken) async {
+    return await Api.put('client/update/$clientId', clientData, accessToken);
+  }
+
+  static Future<http.Response> deleteClient(int clientId, String accessToken) async {
+    return await Api.delete('client/delete/$clientId', accessToken);
+  }
 }

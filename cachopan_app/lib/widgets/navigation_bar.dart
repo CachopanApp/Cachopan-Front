@@ -1,5 +1,16 @@
 import 'package:flutter/material.dart';
 import '../utils.dart';
+import '../pages/clients.dart';
+import '../pages/articles.dart';
+import '../pages/sales.dart';
+import '../pages/invoices.dart';
+
+class CustomPageRoute extends MaterialPageRoute {
+  CustomPageRoute({builder}) : super(builder: builder);
+
+  @override
+  Duration get transitionDuration => const Duration(milliseconds: 0);
+}
 
 class CustomNavigationBar extends StatefulWidget {
   final int initialIndex;
@@ -19,12 +30,19 @@ class _CustomNavigationBarState extends State<CustomNavigationBar> {
     currentPageIndex = widget.initialIndex;
   }
 
+  void _navigateToPage(BuildContext context, Widget page) {
+    Navigator.of(context).pushReplacement(
+      CustomPageRoute(builder: (context) => page),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return NavigationBarTheme(
       data: NavigationBarThemeData(
+        indicatorColor: principal_color,
         height: 90,
-        labelTextStyle: MaterialStateProperty.resolveWith((states) {
+        labelTextStyle: WidgetStateProperty.resolveWith((states) {
           return TextStyle(fontSize: 18); // Aumenta el tamaño de las etiquetas
         }),
       ),
@@ -35,16 +53,16 @@ class _CustomNavigationBarState extends State<CustomNavigationBar> {
           });
           switch (index) {
             case 0:
-              Navigator.pushNamed(context, '/clients');
+              _navigateToPage(context ,ClientsPage());
               break;
             case 1:
-              Navigator.pushNamed(context, '/articles');
+              _navigateToPage(context, ArticlesPage());
               break;
             case 2:
-              Navigator.pushNamed(context, '/sales');
+              _navigateToPage(context, SalesPage());
               break;
             case 3:
-              Navigator.pushNamed(context, '/invoices');
+              _navigateToPage(context, InvoicesPage());
               break;
           }
         },
