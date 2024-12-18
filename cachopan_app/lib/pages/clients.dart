@@ -1,36 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import '../widgets/create_update_client_modal.dart';
 import '../widgets/custom_appbar.dart';
+import '../widgets/custom_are_you_sure.dart';
 import '../widgets/navigation_bar.dart';
 import '../widgets/custom_search_field.dart';
 import '../api.dart';
 import 'dart:convert';
-
-class Client {
-  final int id;
-  final String name;
-  final String? email;
-  final String? number;
-  final int userId;
-
-  Client({
-    required this.id,
-    required this.name,
-    this.email,
-    this.number,
-    required this.userId,
-  });
-
-  factory Client.fromJson(Map<String, dynamic> json) {
-    return Client(
-      id: json['id'],
-      name: json['name'],
-      email: json['email'],
-      number: json['number'],
-      userId: json['user_id'],
-    );
-  }
-}
+import '../models/client.dart';
 
 class ClientsPage extends StatefulWidget {
   @override
@@ -41,7 +18,7 @@ class _ClientsPageState extends State<ClientsPage> {
   List<Client> clients = [];
   bool isLoading = true;
   String? _userId;
-  String? _accessToken;
+  String search = "";
 
   @override
   void initState() {
@@ -57,12 +34,11 @@ class _ClientsPageState extends State<ClientsPage> {
   Future<void> _initKeyValues() async {
     final storage = FlutterSecureStorage();
     _userId = await storage.read(key: 'user_id');
-    _accessToken = await storage.read(key: 'access_token');
   }
 
   Future<void> _fetchClients() async {
-    if (_userId != null && _accessToken != null) {
-      final response = await ClientApi.getAllClients(int.parse(_userId!), _accessToken!);
+    if (_userId != null) {
+      final response = await ClientApi.getAllClients(int.parse(_userId!), search);
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
         setState(() {
@@ -79,14 +55,16 @@ class _ClientsPageState extends State<ClientsPage> {
   }
 
   void _onSearch(String query) {
-    // Implement search functionality here
-    print('Search query: $query');
+    setState(() {
+      search = query.trim();
+    });
+    _fetchClients();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(title: 'Clientes'),
+      appBar: CustomAppBar(title: 'Clientes', icon: Icons.people),
       body: isLoading
           ? Center(child: CircularProgressIndicator())
           : Column(
@@ -127,14 +105,37 @@ class _ClientsPageState extends State<ClientsPage> {
                         children: [
                           TextButton.icon(
                             onPressed: () {
-                              // Add update functionality here
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return CreateUpdateClientModal(client: client);
+                                },
+                              );
                             },
                             icon: Icon(Icons.update, size: 18),
                             label: Text('Actualizar', style: TextStyle(fontSize: 18)),
                           ),
                           TextButton.icon(
                             onPressed: () {
-                              // Add delete functionality here
+                              // Custom AreYouSureModal
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AreYouSureModal(
+                                    title: 'Eliminar cliente',
+                                    content: '¿Estás seguro de que deseas eliminar a ${client.name}?',
+                                    onConfirm: () async {
+                                      final response = await ClientApi.deleteClient(client.id);
+                                      if (response.statusCode == 204) {
+                                        _fetchClients(); // Refresh the list of clients
+                                      } else {
+                                        // Handle error
+                                        print ('Error');
+                                      }
+                                    },
+                                  );
+                                },
+                              );
                             },
                             icon: Icon(Icons.delete, size: 18, color: Colors.red),
                             label: Text('Eliminar', style: TextStyle(fontSize: 18, color: Colors.red)),
@@ -151,8 +152,17 @@ class _ClientsPageState extends State<ClientsPage> {
       ),
       bottomNavigationBar: const CustomNavigationBar(initialIndex: 0),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // Add functionality here
+        onPressed: () async {
+          final result = await showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return CreateUpdateClientModal();
+            },
+          );
+
+          if (result == true) {
+            _fetchClients(); // Refresh the list of clients
+          }
         },
         child: Icon(Icons.add),
         backgroundColor: Theme.of(context).primaryColor,

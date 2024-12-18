@@ -8,12 +8,13 @@ class CustomSearchBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 100, vertical: 20),
+      padding: const EdgeInsets.symmetric(horizontal: 80, vertical: 20),
       child: TextField(
         onChanged: onSearch,
         decoration: InputDecoration(
           prefixIcon: Icon(Icons.search),
           hintText: 'Buscar...',
+          hintStyle: TextStyle(fontSize: 20), // Increase the font size
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(100),
           ),

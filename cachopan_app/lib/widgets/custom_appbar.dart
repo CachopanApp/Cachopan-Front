@@ -5,8 +5,9 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 class CustomAppBar extends StatefulWidget implements PreferredSizeWidget {
   final String title;
   final double height;
+  final IconData? icon;
 
-  CustomAppBar({required this.title, this.height = 60});
+  CustomAppBar({required this.title, this.height = 60, this.icon});
 
   @override
   _CustomAppBarState createState() => _CustomAppBarState();
@@ -36,7 +37,13 @@ class _CustomAppBarState extends State<CustomAppBar> {
   Widget build(BuildContext context) {
     return AppBar(
       backgroundColor: principal_color,
-      title: Text(widget.title, style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
+      title: Row(
+        children: [
+          if (widget.icon != null) Icon(widget.icon, color: Colors.white),
+          SizedBox(width: 10),
+          Text(widget.title, style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
+        ],
+      ),
       automaticallyImplyLeading: false, // This removes the back arrow
       actions: <Widget>[
         if (username != null)
@@ -51,6 +58,12 @@ class _CustomAppBarState extends State<CustomAppBar> {
             onSelected: (String result) {
               if (result == 'logout') {
                 Navigator.pushReplacementNamed(context, '/home');
+                // Remove access_token, refresh_token, user_id, and username from storage
+                final storage = FlutterSecureStorage();
+                storage.delete(key: 'access_token');
+                storage.delete(key: 'refresh_token');
+                storage.delete(key: 'user_id');
+                storage.delete(key: 'username');
               }
             },
             itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
