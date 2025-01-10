@@ -180,68 +180,65 @@ class _CreateUpdateSaleModalState extends State<CreateUpdateSaleModal> {
             mainAxisSize: MainAxisSize.min,
             children: [
               if (widget.sale == null) ...[
-                Padding(
-                  padding: const EdgeInsets.only(right: 20),
-                  child: Autocomplete<String>(
-                    optionsBuilder: (TextEditingValue textEditingValue) {
-                      if (textEditingValue.text.isEmpty) {
-                        return const Iterable<String>.empty();
-                      }
-                      return _articles.map((article) => article['lot'] != '' ? '${article['name']} - Lote : ${article['lot']}' : '${article['name']} - Lote : Pendiente').where((String option) {
-                        return option.toLowerCase().contains(textEditingValue.text.toLowerCase());
-                      });
-                    },
-                    onSelected: (String selection) {
-                      setState(() {
-                        _articleNameController.text = selection.split(' - ')[0];
-                      });
-                    },
-                    fieldViewBuilder: (BuildContext context, TextEditingController fieldTextEditingController, FocusNode fieldFocusNode, VoidCallback onFieldSubmitted) {
-                      return CustomTextFormField(
-                        controller: fieldTextEditingController,
-                        focusNode: fieldFocusNode,
-                        labelText: 'Nombre del Artículo',
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Por favor, introduce el nombre del artículo';
-                          }
-                          return null;
-                        },
-                      );
-                    },
-                    optionsViewBuilder: (BuildContext context, AutocompleteOnSelected<String> onSelected, Iterable<String> options) {
-                      return Align(
-                        alignment: Alignment.topLeft,
-                        child: Material(
-                          child: Container(
-                            width: MediaQuery.of(context).size.width * 0.6,
-                            height: 200,
-                            child: ListView.builder(
-                              padding: EdgeInsets.all(0.0),
-                              itemCount: options.length,
-                              itemBuilder: (BuildContext context, int index) {
-                                final String option = options.elementAt(index);
-                                return GestureDetector(
-                                  onTap: () {
-                                    String articleName = option.split(' - ')[0];
-                                    String articlePrice = _articles.firstWhere((article) => article['name'] == articleName)['price']!;
-                                    setState(() {
-                                      _articleNameController.text = articleName;
-                                      _priceUnitController.text = articlePrice;
-                                    });
-                                    onSelected(articleName);
-                                  },
-                                  child: ListTile(
-                                    title: Text(option),
-                                  ),
-                                );
-                              },
-                            ),
+                Autocomplete<String>(
+                  optionsBuilder: (TextEditingValue textEditingValue) {
+                    if (textEditingValue.text.isEmpty) {
+                      return const Iterable<String>.empty();
+                    }
+                    return _articles.map((article) => article['lot'] != '' ? '${article['name']} - Lote : ${article['lot']}' : '${article['name']} - Lote : Pendiente').where((String option) {
+                      return option.toLowerCase().contains(textEditingValue.text.toLowerCase());
+                    });
+                  },
+                  onSelected: (String selection) {
+                    setState(() {
+                      _articleNameController.text = selection.split(' - ')[0];
+                    });
+                  },
+                  fieldViewBuilder: (BuildContext context, TextEditingController fieldTextEditingController, FocusNode fieldFocusNode, VoidCallback onFieldSubmitted) {
+                    return CustomTextFormField(
+                      controller: fieldTextEditingController,
+                      focusNode: fieldFocusNode,
+                      labelText: 'Nombre del Artículo',
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Por favor, introduce el nombre del artículo';
+                        }
+                        return null;
+                      },
+                    );
+                  },
+                  optionsViewBuilder: (BuildContext context, AutocompleteOnSelected<String> onSelected, Iterable<String> options) {
+                    return Align(
+                      alignment: Alignment.topLeft,
+                      child: Material(
+                        child: Container(
+                          width: MediaQuery.of(context).size.width * 0.6,
+                          height: 200,
+                          child: ListView.builder(
+                            padding: EdgeInsets.all(0.0),
+                            itemCount: options.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              final String option = options.elementAt(index);
+                              return GestureDetector(
+                                onTap: () {
+                                  String articleName = option.split(' - ')[0];
+                                  String articlePrice = _articles.firstWhere((article) => article['name'] == articleName)['price']!;
+                                  setState(() {
+                                    _articleNameController.text = articleName;
+                                    _priceUnitController.text = articlePrice;
+                                  });
+                                  onSelected(articleName);
+                                },
+                                child: ListTile(
+                                  title: Text(option),
+                                ),
+                              );
+                            },
                           ),
                         ),
-                      );
-                    },
-                  ),
+                      ),
+                    );
+                  },
                 ),
                 SizedBox(height: 20),
                 Autocomplete<String>(

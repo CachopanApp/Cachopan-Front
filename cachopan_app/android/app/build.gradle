@@ -32,6 +32,12 @@ android {
             // Configuración de firma temporal para que el comando flutter run --release funcione.
             signingConfig = signingConfigs.debug
 
+            applicationVariants.all { variant ->
+                variant.outputs.all { output ->
+                    outputFileName = "Cachopan App"//"CachopanApp-${variant.buildType.name}.apk"
+                }
+            }
+
             // Reglas de ProGuard
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
 
