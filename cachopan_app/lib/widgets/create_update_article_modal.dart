@@ -3,11 +3,14 @@ import '../models/article.dart';
 import '../api.dart';
 import '../pages/articles.dart';
 import 'custom_button.dart';
+import 'error_modal.dart';
+import 'custom_text_form_field.dart';
 
 class CreateUpdateArticleModal extends StatefulWidget {
   final Article? article;
+  final String formattedDate;
 
-  CreateUpdateArticleModal({this.article});
+  CreateUpdateArticleModal({this.article, required this.formattedDate});
 
   @override
   _CreateUpdateArticleModalState createState() => _CreateUpdateArticleModalState();
@@ -24,9 +27,12 @@ class _CreateUpdateArticleModalState extends State<CreateUpdateArticleModal> {
   void initState() {
     super.initState();
     _lotController = TextEditingController(text: widget.article?.lot ?? '');
+    if (widget.article?.lot == 'Pendiente') {
+      _lotController = TextEditingController(text: '');
+    }
     _nameController = TextEditingController(text: widget.article?.name ?? '');
     _priceController = TextEditingController(text: widget.article?.price.toString() ?? '');
-    _selectedUnit = widget.article?.unit ?? 'Kg';
+    _selectedUnit = widget.article?.unit ?? 'Caja';
   }
 
   @override
@@ -39,6 +45,7 @@ class _CreateUpdateArticleModalState extends State<CreateUpdateArticleModal> {
 
   Future<void> _submit() async {
     if (_formKey.currentState!.validate()) {
+
       final articleData = {
         'name': _nameController.text,
         'lot': _lotController.text,
@@ -46,25 +53,38 @@ class _CreateUpdateArticleModalState extends State<CreateUpdateArticleModal> {
         'unit': _selectedUnit,
       };
 
-      if (widget.article == null) {
-        // Create new article
-        articleData['user_id'] = widget.article?.userId?? 1;
-        final response = await ArticleApi.createArticle(articleData);
-        if (response.statusCode == 201) {
-          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => ArticlesPage()));
+      try {
+        if (widget.article == null) {
+          // Create new article
+          articleData['user_id'] = widget.article?.userId ?? 1;
+          articleData['date'] = widget.formattedDate;
+          final response = await ArticleApi.createArticle(articleData);
+          if (response.statusCode != 201) {
+            throw Exception('Error creating article');
+          }
         } else {
-          // Handle error
-          print('Error creating article');
+          // Update existing article
+          articleData['user_id'] = widget.article?.userId ?? 1;
+          final response = await ArticleApi.updateArticle(widget.article!.id, articleData);
+          if (response.statusCode != 200) {
+            throw Exception('Error updating article');
+          }
         }
-      } else {
-        // Update existing article
-        final response = await ArticleApi.updateArticle(widget.article!.id, articleData);
-        if (response.statusCode == 200) {
-          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => ArticlesPage()));
-        } else {
-          // Handle error
-          print('Error updating article');
-        }
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => ArticlesPage()),
+        );
+      } catch (e) {
+        showDialog(
+          context: context,
+          builder: (context) {
+            return ErrorModal(
+              title: 'Error',
+              message: e.toString(),
+            );
+          },
+        );
       }
     }
   }
@@ -73,91 +93,92 @@ class _CreateUpdateArticleModalState extends State<CreateUpdateArticleModal> {
   Widget build(BuildContext context) {
     return AlertDialog(
       title: Text(widget.article == null ? 'Crear Artículo' : 'Actualizar Artículo'),
-      content: Form(
-        key: _formKey,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: Container(
-                width: 300,
-                child: TextFormField(
-                  controller: _nameController,
-                  decoration: InputDecoration(labelText: 'Nombre'),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Por favor ingrese el nombre';
-                    }
-                    return null;
-                  },
+      content: Container(
+        width: MediaQuery.of(context).size.width * 0.6, // Set the width of the modal
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: Container(
+                  width: double.infinity,
+                  child: CustomTextFormField(
+                    controller: _nameController,
+                    labelText: 'Nombre',
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Por favor ingrese el nombre';
+                      }
+                      return null;
+                    },
+                  ),
                 ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: Container(
-                width: 300,
-                child: TextFormField(
-                  controller: _lotController,
-                  decoration: InputDecoration(labelText: 'Lote'),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Por favor ingrese el lote';
-                    }
-                    return null;
-                  },
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: Container(
+                  width: double.infinity,
+                  child: CustomTextFormField(
+                    controller: _lotController,
+                    labelText: 'Lote',
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return null;
+                      }
+                    },
+                  ),
                 ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: Container(
-                width: 300,
-                child: TextFormField(
-                  controller: _priceController,
-                  decoration: InputDecoration(labelText: 'Precio'),
-                  keyboardType: TextInputType.number,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Por favor ingrese el precio';
-                    }
-                    if (double.tryParse(value) == null) {
-                      return 'Por favor ingrese un precio válido';
-                    }
-                    return null;
-                  },
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: Container(
+                  width: double.infinity,
+                  child: CustomTextFormField(
+                    controller: _priceController,
+                    labelText: 'Precio',
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Por favor ingrese el precio';
+                      }
+                      if (double.tryParse(value) == null) {
+                        return 'Por favor ingrese un precio válido';
+                      }
+                      return null;
+                    },
+                  ),
                 ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: Container(
-                width: 300,
-                child: DropdownButtonFormField<String>(
-                  value: _selectedUnit,
-                  decoration: InputDecoration(labelText: 'Unidad'),
-                  items: ['Kg', 'Caja'].map((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
-                  onChanged: (newValue) {
-                    setState(() {
-                      _selectedUnit = newValue;
-                    });
-                  },
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Por favor seleccione una unidad';
-                    }
-                    return null;
-                  },
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: Container(
+                  width: double.infinity,
+                  child: DropdownButtonFormField<String>(
+                    value: _selectedUnit,
+                    decoration: InputDecoration(labelText: 'Unidad'),
+                    items: ['Kg', 'Caja'].map((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                    onChanged: (newValue) {
+                      setState(() {
+                        _selectedUnit = newValue;
+                      });
+                    },
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Por favor seleccione una unidad';
+                      }
+                      return null;
+                    },
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
       actions: [

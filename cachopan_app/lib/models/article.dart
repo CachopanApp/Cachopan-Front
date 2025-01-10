@@ -5,6 +5,7 @@ class Article {
   final double price;
   final String unit;
   final int userId;
+  final String date;
 
   Article({
     required this.id,
@@ -13,6 +14,7 @@ class Article {
     required this.price,
     required this.unit,
     required this.userId,
+    required this.date,
   });
 
   factory Article.fromJson(Map<String, dynamic> json) {
@@ -23,6 +25,7 @@ class Article {
       price: json['price'].toDouble(),
       unit: json['unit'],
       userId: json['user_id'],
+      date: json['date'],
     );
   }
 }

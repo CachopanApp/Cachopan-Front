@@ -3,11 +3,13 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../widgets/create_update_client_modal.dart';
 import '../widgets/custom_appbar.dart';
 import '../widgets/custom_are_you_sure.dart';
+import '../widgets/error_modal.dart';
 import '../widgets/navigation_bar.dart';
 import '../widgets/custom_search_field.dart';
 import '../api.dart';
 import 'dart:convert';
 import '../models/client.dart';
+import 'dart:async';
 
 class ClientsPage extends StatefulWidget {
   @override
@@ -19,6 +21,7 @@ class _ClientsPageState extends State<ClientsPage> {
   bool isLoading = true;
   String? _userId;
   String search = "";
+  Timer? _debounce;
 
   @override
   void initState() {
@@ -55,10 +58,19 @@ class _ClientsPageState extends State<ClientsPage> {
   }
 
   void _onSearch(String query) {
-    setState(() {
-      search = query.trim();
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      setState(() {
+        search = query.trim();
+      });
+      _fetchClients();
     });
-    _fetchClients();
+  }
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    super.dispose();
   }
 
   @override
@@ -71,7 +83,7 @@ class _ClientsPageState extends State<ClientsPage> {
         children: [
           Padding(
             padding: const EdgeInsets.all(10.0),
-            child: CustomSearchBar(onSearch: _onSearch),
+            child: CustomSearchBar(onSearch: _onSearch, hintText: 'Buscar cliente...'),
           ),
           Expanded(
             child: ListView.builder(
@@ -98,8 +110,8 @@ class _ClientsPageState extends State<ClientsPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(client.name, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                      Text('Email: ${client.email ?? 'N/A'}', style: TextStyle(fontStyle: FontStyle.italic, fontSize: 18)),
-                      Text('Número: ${client.number ?? 'N/A'}', style: TextStyle(fontStyle: FontStyle.italic, fontSize: 18)),
+                      Text('Email: ${client.email ?? 'Sin email'}', style: TextStyle(fontStyle: FontStyle.italic, fontSize: 18)),
+                      Text('Número: ${client.number ?? 'Sin número'}', style: TextStyle(fontStyle: FontStyle.italic, fontSize: 18)),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
@@ -129,8 +141,16 @@ class _ClientsPageState extends State<ClientsPage> {
                                       if (response.statusCode == 204) {
                                         _fetchClients(); // Refresh the list of clients
                                       } else {
-                                        // Handle error
-                                        print ('Error');
+                                        // Error modal
+                                        showDialog(
+                                          context: context,
+                                          builder: (BuildContext context) {
+                                            return ErrorModal(
+                                              title: 'Error',
+                                              message: 'Error al eliminar el cliente',
+                                            );
+                                          },
+                                        );
                                       }
                                     },
                                   );

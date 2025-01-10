@@ -5,6 +5,7 @@ import '../widgets/custom_button.dart';
 import '../widgets/custom_text_form_field.dart';
 import '../api.dart';
 import '../models/client.dart';
+import 'error_modal.dart';
 
 class CreateUpdateClientModal extends StatefulWidget {
   final Client? client;
@@ -42,17 +43,9 @@ class _CreateUpdateClientModalState extends State<CreateUpdateClientModal> {
       showDialog(
         context: context,
         builder: (context) {
-          return AlertDialog(
-            title: Text('Error', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 25)),
-            content: Text('Se necesita un nombre como mínimo para el cliente.', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 18)),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: Text('Aceptar',  style: TextStyle(color: principal_color, fontWeight: FontWeight.bold, fontSize: 18)),
-              ),
-            ],
+          return ErrorModal(
+            title: 'Error',
+            message: 'Se necesita un nombre como mínimo para el cliente.',
           );
         },
       );
@@ -60,26 +53,43 @@ class _CreateUpdateClientModalState extends State<CreateUpdateClientModal> {
     }
 
     if (_formKey.currentState!.validate()) {
-      final Map<String,dynamic> clientData = {
+      final Map<String, dynamic> clientData = {
         'name': _nameController.text,
         'email': _emailController.text,
         'number': _numberController.text,
       };
 
-      if (widget.client == null) {
-        // Create new client
-        clientData['user_id'] = widget.client?.userId ?? 1; // Replace with actual user ID
-        await ClientApi.createClient(clientData);
-      } else {
-        // Update existing client
-        print (clientData.toString());
-        await ClientApi.updateClient(widget.client!.id, clientData);
-      }
+      try {
+        if (widget.client == null) {
+          // Create new client
+          clientData['user_id'] = widget.client?.userId ?? 1; // Replace with actual user ID
+          final response = await ClientApi.createClient(clientData);
+          if (response.statusCode != 201) {
+            throw Exception('Failed to create client');
+          }
+        } else {
+          // Update existing client
+          final response = await ClientApi.updateClient(widget.client!.id, clientData);
+          if (response.statusCode != 200) {
+            throw Exception('Failed to update client');
+          }
+        }
 
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => ClientsPage()),
-      );
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => ClientsPage()),
+        );
+      } catch (e) {
+        showDialog(
+          context: context,
+          builder: (context) {
+            return ErrorModal(
+              title: 'Error',
+              message: e.toString(),
+            );
+          },
+        );
+      }
     }
   }
 

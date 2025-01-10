@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import '../utils.dart';
 
 class CustomTextFormField extends StatelessWidget {
@@ -7,18 +6,23 @@ class CustomTextFormField extends StatelessWidget {
   final String labelText;
   final String? Function(String?) validator;
   final bool obscureText;
+  final FocusNode? focusNode;
+  final bool readOnly;
 
   CustomTextFormField({
     required this.controller,
     required this.labelText,
     required this.validator,
     this.obscureText = false,
+    this.focusNode,
+    this.readOnly = false,
   });
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
       controller: controller,
+      focusNode: focusNode,
       decoration: InputDecoration(
         labelText: labelText,
         labelStyle: TextStyle(fontSize: 20),
@@ -33,6 +37,7 @@ class CustomTextFormField extends StatelessWidget {
       validator: validator,
       style: TextStyle(fontSize: 20),
       obscureText: obscureText,
+      readOnly: readOnly,
     );
   }
 }

@@ -4,10 +4,21 @@ import 'package:cachopan_app/pages/home.dart';
 import 'package:cachopan_app/pages/invoices.dart';
 import 'package:cachopan_app/pages/sales.dart';
 import 'package:flutter/material.dart';
-import 'utils.dart'; // Asegúrate de que `principal_color` esté definido en este archivo
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:provider/provider.dart';
+import 'utils.dart';
+import 'package:cachopan_app/date_provider.dart'; // Import the DateProvider class
+
+//keke
+//@Keke1234
 
 void main() {
-  runApp(MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => DateProvider(),
+      child: MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -45,6 +56,16 @@ class MyApp extends StatelessWidget {
         '/articles': (context) =>  ArticlesPage(),
         '/invoices': (context) =>  InvoicesPage(),
       },
+
+        localizationsDelegates: [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: [
+          const Locale('en', 'US'),
+          const Locale('es', 'ES'),
+        ],
     );
   }
 }

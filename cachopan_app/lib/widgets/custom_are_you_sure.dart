@@ -14,21 +14,21 @@ class AreYouSureModal extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text(title),
-      content: Text(content),
+      title: Text(title, style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
+      content: Text(content, style: TextStyle(fontSize: 24)),
       actions: [
         TextButton(
           onPressed: () {
             Navigator.of(context).pop(false);
           },
-          child: Text('Cancelar', style: TextStyle(color: Colors.red, fontSize: 20, fontWeight: FontWeight.bold)),
+          child: Text('Cancelar', style: TextStyle(color: Colors.red, fontSize: 24, fontWeight: FontWeight.bold)),
         ),
         ElevatedButton(
           onPressed: () {
             onConfirm();
             Navigator.of(context).pop(true);
           },
-          child: Text('Confirmar', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white)),
+          child: Text('Confirmar', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white)),
         ),
       ],
     );

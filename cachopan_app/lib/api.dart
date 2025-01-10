@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class Api {
-  static const String baseUrl = 'http://localhost:5000';
+  static const String baseUrl = 'https://cachopan-back.onrender.com';
   static final storage = FlutterSecureStorage();
 
   static Future<String?> _getAccessToken() async {
@@ -136,8 +136,8 @@ class ClientApi {
 }
 
 class ArticleApi {
-  static Future<http.Response> getAllArticles(int userId, String search) async {
-    return await Api.get('article/getAll/$userId?search=$search');
+  static Future<http.Response> getAllArticles(int userId, String search, String date) async {
+    return await Api.get('article/getAll/$userId?search=$search&date=$date');
   }
 
   static Future<http.Response> createArticle(Map<String, dynamic> articleData) async {
@@ -154,5 +154,31 @@ class ArticleApi {
 
   static Future<http.Response> deleteArticle(int articleId) async {
     return await Api.delete('article/delete/$articleId');
+  }
+}
+
+class SaleApi {
+  static Future<http.Response> getAllSalesFromUser(int userId, String search, String date) async {
+    return await Api.get('sale/getAllSalesFromUser/$userId?search=$search&date=$date');
+  }
+
+  static Future<http.Response> getAllSalesFromUserDate(int userId, String date) async {
+    return await Api.get('sale/getAllSalesFromUserDate/$userId/$date');
+  }
+
+  static Future<http.Response> createSale(Map<String, dynamic> saleData) async {
+    return await Api.post('sale/create', saleData);
+  }
+
+  static Future<http.Response> getSale(int saleId) async {
+    return await Api.get('sale/get/$saleId');
+  }
+
+  static Future<http.Response> updateSale(int saleId, Map<String, dynamic> saleData) async {
+    return await Api.put('sale/update/$saleId', saleData);
+  }
+
+  static Future<http.Response> deleteSale(int saleId) async {
+    return await Api.delete('sale/delete/$saleId');
   }
 }
