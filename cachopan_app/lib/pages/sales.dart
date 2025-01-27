@@ -150,7 +150,9 @@ class _SalesPageState extends State<SalesPage> {
             child: CustomSearchBar(onSearch: _onSearch, hintText: 'Buscar por cliente ...'),
           ),
           Expanded(
-            child: ListView.builder(
+            child: sales.isEmpty
+                ? Center(child: Text('No hay ventas insertadas', style: TextStyle(fontSize: 18)))
+                : ListView.builder(
               padding: EdgeInsets.only(bottom: 80, top: 10),
               itemCount: sales.length,
               itemBuilder: (context, index) {
@@ -186,7 +188,7 @@ class _SalesPageState extends State<SalesPage> {
                               showDialog(
                                 context: context,
                                 builder: (BuildContext context) {
-                                  return CreateUpdateSaleModal(sale: sale, formattedDate: _dateFormat.format(dateProvider.selectedDate), formattedDateSearch: _dateFormatSearch.format(dateProvider.selectedDate) , userId: _userId!);
+                                  return CreateUpdateSaleModal(sale: sale, formattedDate: _dateFormat.format(dateProvider.selectedDate), formattedDateSearch: _dateFormatSearch.format(dateProvider.selectedDate), userId: _userId!);
                                 },
                               );
                             },
@@ -240,7 +242,7 @@ class _SalesPageState extends State<SalesPage> {
           final result = await showDialog(
             context: context,
             builder: (BuildContext context) {
-              return CreateUpdateSaleModal(formattedDate: _dateFormat.format(dateProvider.selectedDate), formattedDateSearch: _dateFormatSearch.format(dateProvider.selectedDate) , userId: _userId!);
+              return CreateUpdateSaleModal(formattedDate: _dateFormat.format(dateProvider.selectedDate), formattedDateSearch: _dateFormatSearch.format(dateProvider.selectedDate), userId: _userId!);
             },
           );
 

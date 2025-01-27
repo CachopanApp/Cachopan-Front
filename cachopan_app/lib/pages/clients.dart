@@ -79,6 +79,8 @@ class _ClientsPageState extends State<ClientsPage> {
       appBar: CustomAppBar(title: 'Clientes', icon: Icons.people),
       body: isLoading
           ? Center(child: CircularProgressIndicator())
+          : clients.isEmpty
+          ? Center(child: Text('No hay clientes insertados', style: TextStyle(fontSize: 18)))
           : Column(
         children: [
           Padding(
@@ -87,7 +89,7 @@ class _ClientsPageState extends State<ClientsPage> {
           ),
           Expanded(
             child: ListView.builder(
-              padding: EdgeInsets.only(bottom: 80, top:10), // Add padding to the bottom
+              padding: EdgeInsets.only(bottom: 80, top: 10),
               itemCount: clients.length,
               itemBuilder: (context, index) {
                 final client = clients[index];
@@ -129,7 +131,6 @@ class _ClientsPageState extends State<ClientsPage> {
                           ),
                           TextButton.icon(
                             onPressed: () {
-                              // Custom AreYouSureModal
                               showDialog(
                                 context: context,
                                 builder: (BuildContext context) {
@@ -139,9 +140,8 @@ class _ClientsPageState extends State<ClientsPage> {
                                     onConfirm: () async {
                                       final response = await ClientApi.deleteClient(client.id);
                                       if (response.statusCode == 204) {
-                                        _fetchClients(); // Refresh the list of clients
+                                        _fetchClients();
                                       } else {
-                                        // Error modal
                                         showDialog(
                                           context: context,
                                           builder: (BuildContext context) {
@@ -181,7 +181,7 @@ class _ClientsPageState extends State<ClientsPage> {
           );
 
           if (result == true) {
-            _fetchClients(); // Refresh the list of clients
+            _fetchClients();
           }
         },
         child: Icon(Icons.add),

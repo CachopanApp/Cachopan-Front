@@ -16,6 +16,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nombreController = TextEditingController();
   final _contrasenaController = TextEditingController();
+  bool _isLoading = false; // Variable de estado para controlar la carga
 
   @override
   void dispose() {
@@ -26,11 +27,19 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _login() async {
     if (_formKey.currentState!.validate()) {
+      setState(() {
+        _isLoading = true; // Mostrar loader
+      });
+
       final response = await UserApi.getUser(
         _nombreController.text,
         _contrasenaController.text,
       );
-      // Handle the response here (e.g., navigate to another screen or show an error message)
+
+      setState(() {
+        _isLoading = false; // Ocultar loader
+      });
+
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
         final String accessToken = responseData["access_token"];
@@ -45,10 +54,7 @@ class _HomeScreenState extends State<HomeScreen> {
         await storage.write(key: 'username', value: _nombreController.text);
 
         Navigator.of(context).pushReplacementNamed('/clients');
-
       } else {
-
-        // Error en el formulario
         showDialog(
           context: context,
           builder: (context) {
@@ -100,14 +106,14 @@ class _HomeScreenState extends State<HomeScreen> {
                         Positioned(
                           top: -80,
                           child: Container(
-                            width: 105, // Tamaño reducido del contenedor
+                            width: 105,
                             height: 105,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               color: Colors.white.withOpacity(0.95),
                             ),
                             child: OverflowBox(
-                              maxWidth: 200, // Tamaño original de la imagen
+                              maxWidth: 200,
                               maxHeight: 200,
                               child: Image.asset(
                                 'assets/images/Cachopan_logo.webp',
@@ -151,9 +157,11 @@ class _HomeScreenState extends State<HomeScreen> {
                               obscureText: true,
                             ),
                             SizedBox(height: 20),
-                            CustomButton(
+                            _isLoading
+                                ? CircularProgressIndicator() // Mostrar loader
+                                : CustomButton(
                               text: 'Iniciar sesión',
-                              onPressed: _login, // Call the _login method
+                              onPressed: _login,
                             ),
                           ],
                         ),

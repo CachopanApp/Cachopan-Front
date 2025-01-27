@@ -204,37 +204,10 @@ class _ArticlesPageState extends State<ArticlesPage> {
               ],
             ),
           ),
-          Row(
-            children: [
-              Expanded(
-                child: CustomSearchBar(
-                  onSearch: _onSearch,
-                  hintText: 'Buscar artículo ...',
-                ),
-              ),
-              const SizedBox(width: 10), // Espaciado entre el buscador y el botón
-              Padding(
-                padding: const EdgeInsets.only(right: 40),
-                child: ElevatedButton.icon(
-                  onPressed: _onConvertToPdf,
-                  style: ElevatedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20), // Increase the height of the button
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    backgroundColor: Colors.grey, // Ensure the background color is set
-                  ),
-                  icon: Icon(Icons.picture_as_pdf, color: Colors.white), // Add PDF icon
-                  label: Text(
-                    "Pasar a PDF",
-                    style: TextStyle(fontSize: 16, color: Colors.white), // Ensure the text color is set to white
-                  ),
-                ),
-              ),
-            ],
-          ),
           Expanded(
-            child: ListView.builder(
+            child: articles.isEmpty
+                ? Center(child: Text('No hay artículos insertados', style: TextStyle(fontSize: 18)))
+                : ListView.builder(
               padding: EdgeInsets.only(bottom: 80, top: 10),
               itemCount: articles.length,
               itemBuilder: (context, index) {
@@ -258,7 +231,7 @@ class _ArticlesPageState extends State<ArticlesPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(article.name, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                      Text( article.lot != '' ? 'Lote: ${article.lot}' : 'Lote: Pendiente', style: TextStyle(fontStyle: FontStyle.italic, fontSize: 20)),
+                      Text(article.lot != '' ? 'Lote: ${article.lot}' : 'Lote: Pendiente', style: TextStyle(fontStyle: FontStyle.italic, fontSize: 20)),
                       Text('Precio: ${article.price} €/${article.unit}', style: TextStyle(fontStyle: FontStyle.italic, fontSize: 20)),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
@@ -288,7 +261,6 @@ class _ArticlesPageState extends State<ArticlesPage> {
                                       if (response.statusCode == 204) {
                                         _fetchArticles();
                                       } else {
-                                        // Error modal
                                         showDialog(
                                           context: context,
                                           builder: (BuildContext context) {
